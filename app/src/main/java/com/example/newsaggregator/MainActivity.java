@@ -9,13 +9,13 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
-import android.graphics.Point;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.Log;
-import android.view.Display;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.ArrayAdapter;
 import android.widget.ListView;
 
 import org.json.JSONArray;
@@ -40,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
 
     //My API Key: 65d5db554f32406b97783439ae2d53cc
     private static final String TAG = "MainActivity";
-    private final ArrayList<String> newsSourceDisplayed = new ArrayList<>();
+    private final ArrayList<String> currNewsSourceDisplayed = new ArrayList<>();
+    private final ArrayList<String> fullNewsSourceDisplayed = new ArrayList<>();
     private final List<Source> sourceListData = new ArrayList<>();
     private Menu opt_menu;
     private DrawerLayout mDrawerLayout;
@@ -53,6 +54,11 @@ public class MainActivity extends AppCompatActivity {
     public static int screenWidth, screenHeight;
     private final HashMap<String, String> Code2Country = new HashMap<>();
     private final HashMap<String, String> Code2Language = new HashMap<>();
+    private final HashSet<String> countrySet = new HashSet<>();
+    private final HashSet<String> languageSet = new HashSet<>();
+    private String topicFilter = "all";
+    private String countryFilter = "all";
+    private String languageFilter = "all";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -85,6 +91,8 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.viewpager);
         pager.setAdapter(pageAdapter);
 
+        setupHashMaps();
+
         // Load the data
         if (sourceListData.isEmpty())
             new Thread(new SourceLoader(this)).start();
@@ -105,7 +113,8 @@ public class MainActivity extends AppCompatActivity {
                 code = jCountry.getString("code");
                 name = jCountry.getString("name");
 
-                Code2Country.put(code, name);
+                Code2Country.put(code.toLowerCase(), name);
+                countrySet.add(name);
             }
 
             String jLanguageString = readJSONfile(R.raw.language_codes);
@@ -118,7 +127,8 @@ public class MainActivity extends AppCompatActivity {
                 code = jLanguage.getString("code");
                 name = jLanguage.getString("name");
 
-                Code2Language.put(code, name);
+                Code2Language.put(code.toLowerCase(), name);
+                languageSet.add(name);
             }
 
         } catch (
@@ -152,9 +162,9 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
+        opt_menu = menu;
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.menu, menu);
-        opt_menu = menu;
         return true;
     }
 
@@ -167,29 +177,32 @@ public class MainActivity extends AppCompatActivity {
         Set<String> topics = new HashSet<>();
         Set<String> countries = new HashSet<>();
         Set<String> languages = new HashSet<>();
+        Set<String> sources = new HashSet<>();
 
-        String topic, country, language;
+        String topic, country, language, source;
 
         for (Source s: sourceListIn) {
             topic = s.getCategory();
             country = s.getCountry();
             language = s.getLanguage();
+            source = s.getName();
 
             topics.add(topic);
             countries.add(country);
             languages.add(language);
+            sources.add(source);
+            sourceListData.add(s);
         }
-
-        setupHashMaps();
 
         List<String> topicList = new ArrayList<>(topics);
         List<String> countryCodeList = new ArrayList<>(countries);
         List<String> languageCodeList = new ArrayList<>(languages);
+        List<String> sourceList = new ArrayList<>(sources);
         List<String> countryList = new ArrayList<>();
         List<String> languageList = new ArrayList<>();
 
         for (String s: countryCodeList) {
-            countryList.add(Code2Country.getOrDefault(s, "unkown"));
+            countryList.add(Code2Country.getOrDefault(s, "unknown"));
         }
 
         for (String s: languageCodeList) {
@@ -213,6 +226,113 @@ public class MainActivity extends AppCompatActivity {
         for (String s: languageList)
             languageItem.getSubMenu().add(s);
 
+
+        if (sourceList != null) {
+            currNewsSourceDisplayed.addAll(sourceList);
+            fullNewsSourceDisplayed.addAll(sourceList);
+        }
+
+        mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_item, currNewsSourceDisplayed));
+
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setHomeButtonEnabled(true);
+        }
+    }
+
+//    private void selectItem(int position) {
+//        pager.setBackground(null);
+//        currentSubRegion = subRegionDisplayed.get(position);
+//        new Thread(new SubRegionLoader(this, currentSubRegion)).start();
+//        mDrawerLayout.closeDrawer(mDrawerList);
+//    }
+//
+//    public void setCountries(ArrayList<Country> countryList) {
+//
+//        setTitle(currentSubRegion);
+//
+//        for (int i = 0; i < pageAdapter.getCount(); i++)
+//            pageAdapter.notifyChangeInPosition(i);
+//        fragments.clear();
+//
+//        for (int i = 0; i < countryList.size(); i++) {
+//            fragments.add(
+//                    CountryFragment.newInstance(countryList.get(i), i+1, countryList.size()));
+//        }
+//
+//        pageAdapter.notifyDataSetChanged();
+//        pager.setCurrentItem(0);
+//    }
+
+    // You need the 2 below to make the drawer-toggle work properly:
+
+    @Override
+    protected void onPostCreate(Bundle savedInstanceState) {
+        super.onPostCreate(savedInstanceState);
+        // Sync the toggle state after onRestoreInstanceState has occurred.
+        mDrawerToggle.syncState();
+    }
+
+    @Override
+    public void onConfigurationChanged(@NonNull Configuration newConfig) {
+        super.onConfigurationChanged(newConfig);
+        // Pass any configuration change to the drawer toggls
+        mDrawerToggle.onConfigurationChanged(newConfig);
+    }
+
+    // You need the below to open the drawer when the toggle is clicked
+    // Same method is called when an options menu item is selected.
+
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        if (mDrawerToggle.onOptionsItemSelected(item)) {
+            Log.d(TAG, "onOptionsItemSelected: mDrawerToggle " + item);
+            return true;
+        }
+
+        currNewsSourceDisplayed.clear();
+        ArrayList<String> lst = updateCurrSourceDisplayed(item);
+        if (lst != null) {
+            currNewsSourceDisplayed.addAll(lst);
+        }
+
+        ((ArrayAdapter) mDrawerList.getAdapter()).notifyDataSetChanged();
+        setTitle("News Aggregator (" + lst.size() + ")");
+
+        return super.onOptionsItemSelected(item);
+    }
+
+    private ArrayList<String> updateCurrSourceDisplayed(MenuItem item) {
+        String filter = item.getTitle().toString();
+        ArrayList<String> lst = new ArrayList<>();
+
+        if (filter.equals("all")) {
+            int itemId = item.getItemId();
+            if (itemId == R.id.topicsAll) topicFilter = "all";
+            else if (itemId == R.id.countriesAll) countryFilter = "all";
+            else if (itemId == R.id.languagesAll) languageFilter = "all";
+        } else {
+            if (countrySet.contains(filter)) countryFilter = filter;
+            else if (languageSet.contains(filter)) languageFilter = filter;
+            else topicFilter = filter;
+        }
+
+        for (Source s: sourceListData) {
+            String topic = s.getCategory();
+            String country = s.getCountry();
+            String language = s.getLanguage();
+            String name = s.getName();
+
+            if (topicFilter.equals("all") || topicFilter.equals(topic)) {
+                if (countryFilter.equals("all") || countryFilter.equals(country)) {
+                    if (languageFilter.equals("all") || languageFilter.equals(language)) {
+                        lst.add(name);
+                    }
+                }
+            }
+        }
+
+        return lst;
     }
 
     private class MyPageAdapter extends FragmentPagerAdapter {

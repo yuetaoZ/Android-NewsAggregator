@@ -6,6 +6,10 @@
         android:title="@string/topics"
         app:showAsAction="never" >
         <menu>
+            <item
+                android:id="@+id/topicsAll"
+                android:title="all"
+                android:contentDescription="topicsAll" />
         </menu>
     </item>
     <item
@@ -13,6 +17,10 @@
         android:title="@string/countries"
         app:showAsAction="never" >
         <menu>
+            <item
+                android:id="@+id/countriesAll"
+                android:title="all"
+                android:contentDescription="countriesAll" />
         </menu>
     </item>
     <item
@@ -20,6 +28,10 @@
         android:title="@string/languages"
         app:showAsAction="never" >
         <menu>
+            <item
+                android:id="@+id/languagesAll"
+                android:title="all"
+                android:contentDescription="languagesAll" />
         </menu>
     </item>
 </menu>
