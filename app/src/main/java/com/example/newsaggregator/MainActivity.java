@@ -151,8 +151,18 @@ public class MainActivity extends AppCompatActivity {
 
 
         List<String> topicList = new ArrayList<>(topics);
-        List<String> countryList = new ArrayList<>(countries);
-        List<String> languageList = new ArrayList<>(languages);
+        List<String> countryCodeList = new ArrayList<>(countries);
+        List<String> languageCodeList = new ArrayList<>(languages);
+        List<String> countryList = new ArrayList<>();
+        List<String> languageList = new ArrayList<>();
+
+        for (String s: countryCodeList) {
+            countryList.add(Code2Country.getOrDefault(s, "unkown"));
+        }
+
+        for (String s: languageCodeList) {
+            languageList.add(Code2Language.getOrDefault(s, "unknown"));
+        }
 
         Collections.sort(topicList);
         Collections.sort(countryList);
@@ -166,10 +176,10 @@ public class MainActivity extends AppCompatActivity {
             topicsItem.getSubMenu().add(s);
 
         for (String s: countryList)
-            countryItem.getSubMenu().add(Code2Country.get(s));
+            countryItem.getSubMenu().add(s);
 
         for (String s: languageList)
-            languageItem.getSubMenu().add(Code2Language.get(s));
+            languageItem.getSubMenu().add(s);
 
     }
 
