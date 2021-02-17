@@ -108,21 +108,27 @@ public class MainActivity extends AppCompatActivity {
         }
 
 
-        List<String> topicsList = new ArrayList<>(topics);
+        List<String> topicList = new ArrayList<>(topics);
         List<String> countryList = new ArrayList<>(countries);
         List<String> languageList = new ArrayList<>(languages);
 
-        Collections.sort(topicsList);
+        Collections.sort(topicList);
         Collections.sort(countryList);
         Collections.sort(languageList);
 
-        Log.d(TAG, "load the data");
-        MenuItem topicsItem = opt_menu.getItem(R.id.topics);
-        for (String s : topicsList) {
-            Log.d(TAG, s);
-            topicsItem.getSubMenu().add(s);
-        }
 
+        MenuItem topicsItem = opt_menu.getItem(0);
+        MenuItem countryItem = opt_menu.getItem(1);
+        MenuItem languageItem = opt_menu.getItem(2);
+
+        for (String s : topicList)
+            topicsItem.getSubMenu().add(s);
+
+        for (String s: countryList)
+            countryItem.getSubMenu().add(s);
+
+        for (String s: languageList)
+            languageItem.getSubMenu().add(s);
 
     }
 
