@@ -18,6 +18,9 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.widget.ListView;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -40,6 +43,8 @@ public class MainActivity extends AppCompatActivity {
     private ViewPager pager;
     private String currentSource;
     public static int screenWidth, screenHeight;
+    private final HashMap<String, String> Code2Country = new HashMap<>();
+    private final HashMap<String, String> Code2Language = new HashMap<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -72,9 +77,46 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.viewpager);
         pager.setAdapter(pageAdapter);
 
+        setupHashMaps();
+
         // Load the data
         if (sourceListData.isEmpty())
             new Thread(new SourceLoader(this)).start();
+    }
+
+    private void setupHashMaps() {
+        String code, name;
+        JSONObject jObjMain;
+        JSONArray jObjCountries, jObjLanguages;
+        try {
+            jObjMain = new JSONObject(String.valueOf(R.raw.country_codes));
+            jObjCountries = jObjMain.getJSONArray("countries");
+
+            for (int i = 0; i < jObjCountries.length(); i++) {
+                JSONObject jCountry = (JSONObject) jObjCountries.get(i);
+
+                code = jCountry.getString("code");
+                name = jCountry.getString("name");
+
+                Code2Country.put(code, name);
+            }
+
+            jObjMain = new JSONObject(String.valueOf(R.raw.language_codes));
+            jObjLanguages = jObjMain.getJSONArray("languages");
+
+            for (int i = 0; i < jObjLanguages.length(); i++) {
+                JSONObject jLanguage = (JSONObject) jObjLanguages.get(i);
+
+                code = jLanguage.getString("code");
+                name = jLanguage.getString("name");
+
+                Code2Language.put(code, name);
+            }
+
+        } catch (
+                Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -116,19 +158,18 @@ public class MainActivity extends AppCompatActivity {
         Collections.sort(countryList);
         Collections.sort(languageList);
 
-
         MenuItem topicsItem = opt_menu.getItem(0);
         MenuItem countryItem = opt_menu.getItem(1);
         MenuItem languageItem = opt_menu.getItem(2);
 
-        for (String s : topicList)
+        for (String s: topicList)
             topicsItem.getSubMenu().add(s);
 
         for (String s: countryList)
-            countryItem.getSubMenu().add(s);
+            countryItem.getSubMenu().add(Code2Country.get(s));
 
         for (String s: languageList)
-            languageItem.getSubMenu().add(s);
+            languageItem.getSubMenu().add(Code2Language.get(s));
 
     }
 
