@@ -21,6 +21,14 @@ import android.widget.ListView;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringWriter;
+import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -77,8 +85,6 @@ public class MainActivity extends AppCompatActivity {
         pager = findViewById(R.id.viewpager);
         pager.setAdapter(pageAdapter);
 
-        setupHashMaps();
-
         // Load the data
         if (sourceListData.isEmpty())
             new Thread(new SourceLoader(this)).start();
@@ -89,7 +95,8 @@ public class MainActivity extends AppCompatActivity {
         JSONObject jObjMain;
         JSONArray jObjCountries, jObjLanguages;
         try {
-            jObjMain = new JSONObject(String.valueOf(R.raw.country_codes));
+            String jCountryString = readJSONfile(R.raw.country_codes);
+            jObjMain = new JSONObject(jCountryString);
             jObjCountries = jObjMain.getJSONArray("countries");
 
             for (int i = 0; i < jObjCountries.length(); i++) {
@@ -101,7 +108,8 @@ public class MainActivity extends AppCompatActivity {
                 Code2Country.put(code, name);
             }
 
-            jObjMain = new JSONObject(String.valueOf(R.raw.language_codes));
+            String jLanguageString = readJSONfile(R.raw.language_codes);
+            jObjMain = new JSONObject(jLanguageString);
             jObjLanguages = jObjMain.getJSONArray("languages");
 
             for (int i = 0; i < jObjLanguages.length(); i++) {
@@ -117,6 +125,29 @@ public class MainActivity extends AppCompatActivity {
                 Exception e) {
             e.printStackTrace();
         }
+    }
+
+    private String readJSONfile(int codes) {
+        InputStream is = getResources().openRawResource(codes);
+        Writer writer = new StringWriter();
+        char[] buffer = new char[1024];
+        try {
+            Reader reader = new BufferedReader(new InputStreamReader(is, StandardCharsets.UTF_8));
+            int n;
+            while ((n = reader.read(buffer)) != -1) {
+                writer.write(buffer, 0, n);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                is.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+
+        return writer.toString();
     }
 
     @Override
@@ -149,6 +180,7 @@ public class MainActivity extends AppCompatActivity {
             languages.add(language);
         }
 
+        setupHashMaps();
 
         List<String> topicList = new ArrayList<>(topics);
         List<String> countryCodeList = new ArrayList<>(countries);
