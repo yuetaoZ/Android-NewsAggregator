@@ -40,7 +40,7 @@ public class SourceLoader implements Runnable {
 
             StringBuilder sb = new StringBuilder();
             String line;
-
+            Log.d(TAG, "Responsecode: " + conn.getResponseCode());
             if (conn.getResponseCode() == HTTP_OK) {
                 BufferedReader reader =
                         new BufferedReader((new InputStreamReader(conn.getInputStream())));

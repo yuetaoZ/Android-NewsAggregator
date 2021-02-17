@@ -11,21 +11,26 @@ import androidx.viewpager.widget.ViewPager;
 
 import android.graphics.Point;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Display;
 import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.widget.ListView;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
     //My API Key: 65d5db554f32406b97783439ae2d53cc
     private static final String TAG = "MainActivity";
     private final ArrayList<String> newsSourceDisplayed = new ArrayList<>();
-    private final HashMap<String, ArrayList<String>> TCL2sourceData = new HashMap<>();   // TCL for Topics, Countries, and Languages
+    private final List<Source> sourceListData = new ArrayList<>();
     private Menu opt_menu;
     private DrawerLayout mDrawerLayout;
     private ListView mDrawerList;
@@ -68,16 +73,57 @@ public class MainActivity extends AppCompatActivity {
         pager.setAdapter(pageAdapter);
 
         // Load the data
-        if (TCL2sourceData.isEmpty())
+        if (sourceListData.isEmpty())
             new Thread(new SourceLoader(this)).start();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu, menu);
+        opt_menu = menu;
+        return true;
     }
 
     private void selectItem(int position) {
     }
 
-    public void setupSources(List<Source> sourceList) {
-        TCL2sourceData.clear();
-        //setupRegions...
+    public void setupSources(List<Source> sourceListIn) {
+        sourceListData.clear();
+
+        Set<String> topics = new HashSet<>();
+        Set<String> countries = new HashSet<>();
+        Set<String> languages = new HashSet<>();
+
+        String topic, country, language;
+
+        for (Source s: sourceListIn) {
+            topic = s.getCategory();
+            country = s.getCountry();
+            language = s.getLanguage();
+
+            topics.add(topic);
+            countries.add(country);
+            languages.add(language);
+        }
+
+
+        List<String> topicsList = new ArrayList<>(topics);
+        List<String> countryList = new ArrayList<>(countries);
+        List<String> languageList = new ArrayList<>(languages);
+
+        Collections.sort(topicsList);
+        Collections.sort(countryList);
+        Collections.sort(languageList);
+
+        Log.d(TAG, "load the data");
+        MenuItem topicsItem = opt_menu.getItem(R.id.topics);
+        for (String s : topicsList) {
+            Log.d(TAG, s);
+            topicsItem.getSubMenu().add(s);
+        }
+
+
     }
 
     private class MyPageAdapter extends FragmentPagerAdapter {
