@@ -9,12 +9,15 @@ import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
+import android.graphics.Point;
 import android.os.Bundle;
+import android.view.Display;
 import android.view.Menu;
 import android.widget.ListView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class MainActivity extends AppCompatActivity {
@@ -36,7 +39,45 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
+
+        mDrawerLayout = findViewById(R.id.drawer_layout);
+        mDrawerList = findViewById(R.id.drawer_list);
+
+        // Set up the drawer item click callback method
+        mDrawerList.setOnItemClickListener(
+                (parent, view, position, id) -> {
+                    selectItem(position);
+                    mDrawerLayout.closeDrawer(mDrawerList);
+                }
+        );
+
+        // Create the drawer toggle
+        mDrawerToggle = new ActionBarDrawerToggle(
+                this,                  /* host Activity */
+                mDrawerLayout,         /* DrawerLayout object */
+                R.string.drawer_open,  /* "open drawer" description for accessibility */
+                R.string.drawer_close  /* "close drawer" description for accessibility */
+        );
+
+        fragments = new ArrayList<>();
+
+        pageAdapter = new MyPageAdapter(getSupportFragmentManager());
+        pager = findViewById(R.id.viewpager);
+        pager.setAdapter(pageAdapter);
+
+        // Load the data
+        if (TCL2sourceData.isEmpty())
+            new Thread(new SourceLoader(this)).start();
+    }
+
+    private void selectItem(int position) {
+    }
+
+    public void setupSources(List<Source> sourceList) {
+        TCL2sourceData.clear();
+        //setupRegions...
     }
 
     private class MyPageAdapter extends FragmentPagerAdapter {
