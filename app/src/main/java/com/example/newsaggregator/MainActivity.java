@@ -38,7 +38,6 @@ import java.util.Set;
 
 public class MainActivity extends AppCompatActivity {
 
-    //My API Key: 65d5db554f32406b97783439ae2d53cc
     private static final String TAG = "MainActivity";
     private final ArrayList<String> currNewsSourceDisplayed = new ArrayList<>();
     private final ArrayList<String> fullNewsSourceDisplayed = new ArrayList<>();
@@ -54,6 +53,7 @@ public class MainActivity extends AppCompatActivity {
     public static int screenWidth, screenHeight;
     private final HashMap<String, String> Code2Country = new HashMap<>();
     private final HashMap<String, String> Code2Language = new HashMap<>();
+    private HashSet<String> topicSet = new HashSet<>();
     private final HashSet<String> countrySet = new HashSet<>();
     private final HashSet<String> languageSet = new HashSet<>();
     private String topicFilter = "all";
@@ -168,11 +168,12 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-    private void selectItem(int position) {
-    }
-
     public void setupSources(List<Source> sourceListIn) {
         sourceListData.clear();
+        topicSet.clear();
+
+
+        setTitle("News Aggregator (" + sourceListIn.size() + ")");
 
         Set<String> topics = new HashSet<>();
         Set<String> countries = new HashSet<>();
@@ -185,7 +186,7 @@ public class MainActivity extends AppCompatActivity {
             topic = s.getCategory();
             country = s.getCountry();
             language = s.getLanguage();
-            source = s.getName();
+            source = s.getId();
 
             topics.add(topic);
             countries.add(country);
@@ -194,6 +195,7 @@ public class MainActivity extends AppCompatActivity {
             sourceListData.add(s);
         }
 
+        topicSet = new HashSet<>(topics);
         List<String> topicList = new ArrayList<>(topics);
         List<String> countryCodeList = new ArrayList<>(countries);
         List<String> languageCodeList = new ArrayList<>(languages);
@@ -240,13 +242,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-//    private void selectItem(int position) {
-//        pager.setBackground(null);
-//        currentSubRegion = subRegionDisplayed.get(position);
-//        new Thread(new SubRegionLoader(this, currentSubRegion)).start();
-//        mDrawerLayout.closeDrawer(mDrawerList);
-//    }
-//
+    private void selectItem(int position) {
+        pager.setBackground(null);
+        currentSource = currNewsSourceDisplayed.get(position);
+        new Thread(new CurrSourceLoader(this, currentSource)).start();
+        mDrawerLayout.closeDrawer(mDrawerList);
+    }
+
+    public void setArticles(ArrayList<Article> aList) {
+    }
 //    public void setCountries(ArrayList<Country> countryList) {
 //
 //        setTitle(currentSubRegion);
@@ -314,13 +318,13 @@ public class MainActivity extends AppCompatActivity {
         } else {
             if (countrySet.contains(filter)) countryFilter = filter;
             else if (languageSet.contains(filter)) languageFilter = filter;
-            else topicFilter = filter;
+            else if (topicSet.contains(filter)) topicFilter = filter;
         }
 
         for (Source s: sourceListData) {
             String topic = s.getCategory();
-            String country = s.getCountry();
-            String language = s.getLanguage();
+            String country = Code2Country.get(s.getCountry());
+            String language = Code2Language.get(s.getLanguage());
             String name = s.getName();
 
             if (topicFilter.equals("all") || topicFilter.equals(topic)) {
