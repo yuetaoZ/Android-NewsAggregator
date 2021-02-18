@@ -25,6 +25,7 @@ public class CurrSourceLoader implements Runnable{
     private static final String TAG = "CurrSourceLoader";
     private final MainActivity mainActivity;
     private final String selectedSource;
+    private ArrayList<Article> aList = new ArrayList<>();
 
     private static final String dataURL = "https://newsapi.org/v2/top-headlines?sources=";
     private static final String apiKey= "65d5db554f32406b97783439ae2d53cc";
@@ -59,7 +60,7 @@ public class CurrSourceLoader implements Runnable{
                     sb.append(line).append('\n');
                 }
                 conn.disconnect();
-                ArrayList<Article> aList = parseJSON(sb.toString());
+                aList = parseJSON(sb.toString());
                 mainActivity.runOnUiThread(() -> mainActivity.setArticles(aList));
 
             } else {
@@ -106,25 +107,18 @@ public class CurrSourceLoader implements Runnable{
                 if (!id.equals(selectedSource))
                     continue;
 
-                Drawable drawable = null;
-                try {
-                    Bitmap x;
+                Drawable drawable;
+                Bitmap x;
+                HttpURLConnection connection = (HttpURLConnection) new URL(urlToImage).openConnection();
+                connection.connect();
+                InputStream input = connection.getInputStream();
 
-                    HttpURLConnection connection = (HttpURLConnection) new URL(urlToImage).openConnection();
-                    connection.connect();
-                    InputStream input = connection.getInputStream();
-
-                    x = BitmapFactory.decodeStream(input);
-                    drawable = new BitmapDrawable(Resources.getSystem(), x);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-
+                x = BitmapFactory.decodeStream(input);
+                drawable = new BitmapDrawable(Resources.getSystem(), x);
 
                 articleList.add(
                         new Article(id, name, author, title, description, url, urlToImage, publishedAt,
                                 content, drawable));
-
             }
             return articleList;
         } catch (Exception e) {

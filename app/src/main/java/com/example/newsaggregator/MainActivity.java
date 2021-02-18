@@ -40,7 +40,7 @@ public class MainActivity extends AppCompatActivity {
 
     private static final String TAG = "MainActivity";
     private final ArrayList<String> currNewsSourceDisplayed = new ArrayList<>();
-    private final ArrayList<String> fullNewsSourceDisplayed = new ArrayList<>();
+    private ArrayList<Article> articleList = new ArrayList<>();
     private final List<Source> sourceListData = new ArrayList<>();
     private Menu opt_menu;
     private DrawerLayout mDrawerLayout;
@@ -50,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
     private MyPageAdapter pageAdapter;
     private ViewPager pager;
     private String currentSource;
-    public static int screenWidth, screenHeight;
     private final HashMap<String, String> Code2Country = new HashMap<>();
     private final HashMap<String, String> Code2Language = new HashMap<>();
     private HashSet<String> topicSet = new HashSet<>();
@@ -229,10 +228,7 @@ public class MainActivity extends AppCompatActivity {
             languageItem.getSubMenu().add(s);
 
 
-        if (sourceList != null) {
-            currNewsSourceDisplayed.addAll(sourceList);
-            fullNewsSourceDisplayed.addAll(sourceList);
-        }
+        currNewsSourceDisplayed.addAll(sourceList);
 
         mDrawerList.setAdapter(new ArrayAdapter<>(this, R.layout.drawer_item, currNewsSourceDisplayed));
 
@@ -249,7 +245,13 @@ public class MainActivity extends AppCompatActivity {
         mDrawerLayout.closeDrawer(mDrawerList);
     }
 
-    public void setArticles(ArrayList<Article> aList) {
+    public void setArticles(ArrayList<Article> aListIn) {
+        articleList.clear();
+        if (aListIn != null) {
+            articleList = new ArrayList<>(aListIn);
+        } else {
+            return;
+        }
 
         setTitle(currentSource);
 
@@ -257,9 +259,9 @@ public class MainActivity extends AppCompatActivity {
             pageAdapter.notifyChangeInPosition(i);
         fragments.clear();
 
-        for (int i = 0; i < aList.size(); i++) {
+        for (int i = 0; i < articleList.size(); i++) {
             fragments.add(
-                    ArticleFragment.newInstance(aList.get(i), i+1, aList.size()));
+                    ArticleFragment.newInstance(articleList.get(i), i+1, articleList.size()));
         }
 
         pageAdapter.notifyDataSetChanged();
@@ -295,9 +297,7 @@ public class MainActivity extends AppCompatActivity {
 
         currNewsSourceDisplayed.clear();
         ArrayList<String> lst = updateCurrSourceDisplayed(item);
-        if (lst != null) {
-            currNewsSourceDisplayed.addAll(lst);
-        }
+        currNewsSourceDisplayed.addAll(lst)
 
         ((ArrayAdapter) mDrawerList.getAdapter()).notifyDataSetChanged();
         setTitle("News Aggregator (" + lst.size() + ")");

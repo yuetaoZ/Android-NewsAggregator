@@ -14,7 +14,7 @@ public class Article implements Serializable {
     private String urlToImage;
     private String publishedAt;
     private String content;
-    private transient final Drawable drawable;
+    private transient Drawable drawable;
 
     public Article(String id, String name, String author, String title, String description, String url, String urlToImage, String publishedAt, String content, Drawable drawable) {
         this.id = id;
@@ -26,7 +26,7 @@ public class Article implements Serializable {
         this.urlToImage = urlToImage;
         this.publishedAt = publishedAt;
         this.content = content;
-        this.drawable = drawable;
+        this.setDrawable(drawable);
     }
 
     public String getId() {
@@ -103,5 +103,9 @@ public class Article implements Serializable {
 
     public Drawable getDrawable() {
         return drawable;
+    }
+
+    public void setDrawable(Drawable drawable) {
+        this.drawable = drawable;
     }
 }
