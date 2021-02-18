@@ -1,19 +1,12 @@
 package com.example.newsaggregator;
 
-import android.content.res.Resources;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.util.Log;
-
 
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
-import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
@@ -107,18 +100,10 @@ public class CurrSourceLoader implements Runnable{
                 if (!id.equals(selectedSource))
                     continue;
 
-                Drawable drawable;
-                Bitmap x;
-                HttpURLConnection connection = (HttpURLConnection) new URL(urlToImage).openConnection();
-                connection.connect();
-                InputStream input = connection.getInputStream();
-
-                x = BitmapFactory.decodeStream(input);
-                drawable = new BitmapDrawable(Resources.getSystem(), x);
-
                 articleList.add(
                         new Article(id, name, author, title, description, url, urlToImage, publishedAt,
-                                content, drawable));
+                                content, null));
+
             }
             return articleList;
         } catch (Exception e) {

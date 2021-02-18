@@ -3,7 +3,6 @@ package com.example.newsaggregator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
-import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,6 +11,8 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
+
+import com.bumptech.glide.Glide;
 
 import java.util.Locale;
 
@@ -86,7 +87,12 @@ public class ArticleFragment extends Fragment {
             ImageView imageView = fragment_layout.findViewById(R.id.imageView);
             imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
-            imageView.setImageDrawable(currentArticle.getDrawable());
+            Glide.with(this)
+                    .load(currentArticle.getUrlToImage())
+                    .placeholder(R.drawable.loading)
+                    .error(R.drawable.brokenimage)
+                    .into(imageView);
+
             imageView.setOnClickListener(v -> openWebsite(currentArticle.getUrl()));
             return fragment_layout;
         } else {
