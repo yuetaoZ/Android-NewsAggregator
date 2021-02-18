@@ -28,7 +28,7 @@ public class CurrSourceLoader implements Runnable{
     private ArrayList<Article> aList = new ArrayList<>();
 
     private static final String dataURL = "https://newsapi.org/v2/top-headlines?sources=";
-    private static final String apiKey= "65d5db554f32406b97783439ae2d53cc";
+    private static final String apiKey= "2e237bfc14ec4dabb390e9120b0c836a";
 
     CurrSourceLoader(MainActivity ma, String selectedSource) {
         mainActivity = ma;

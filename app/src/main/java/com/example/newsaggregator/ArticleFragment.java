@@ -3,6 +3,7 @@ package com.example.newsaggregator;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.method.LinkMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,11 +50,13 @@ public class ArticleFragment extends Fragment {
 
             TextView headline = fragment_layout.findViewById(R.id.headline);
             headline.setText(currentArticle.getTitle());
+            headline.setOnClickListener(v -> openWebsite(currentArticle.getUrl()));
 
             TextView date = fragment_layout.findViewById(R.id.date);
             String pubDate = currentArticle.getPublishedAt();
             if (!pubDate.isEmpty() && !pubDate.equals("null")) {
-                date.setText(pubDate);
+                String easyDate = pubDate.substring(0, 10);
+                date.setText(easyDate);
             } else {
                 date.setText("");
             }
@@ -74,6 +77,8 @@ public class ArticleFragment extends Fragment {
             } else {
                 content.setText("");
             }
+            content.setText(currentArticle.getTitle());
+            content.setOnClickListener(v -> openWebsite(currentArticle.getUrl()));
 
             TextView pageNum = fragment_layout.findViewById(R.id.page_num);
             pageNum.setText(String.format(Locale.US, "%d of %d", index, total));
@@ -82,22 +87,17 @@ public class ArticleFragment extends Fragment {
             imageView.setLayerType(View.LAYER_TYPE_SOFTWARE, null);
 
             imageView.setImageDrawable(currentArticle.getDrawable());
-            imageView.setOnClickListener(v -> clickImage(currentArticle.getUrl()));
+            imageView.setOnClickListener(v -> openWebsite(currentArticle.getUrl()));
             return fragment_layout;
         } else {
             return null;
         }
     }
 
-
-
-    public void clickImage(String url) {
-
-        Uri mapUri = Uri.parse("geo:0,0?q=" + Uri.encode(url));
-
-        Intent intent = new Intent(Intent.ACTION_VIEW, mapUri);
-        intent.setPackage("com.google.android.apps.maps");
-        startActivity(intent);
-
+    public void openWebsite(String url) {
+        Intent browserIntent = new Intent(Intent.ACTION_VIEW);
+        browserIntent.setData(Uri.parse(url));
+        startActivity(browserIntent);
     }
+
 }

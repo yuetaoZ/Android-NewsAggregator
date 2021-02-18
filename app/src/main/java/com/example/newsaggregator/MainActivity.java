@@ -297,7 +297,7 @@ public class MainActivity extends AppCompatActivity {
 
         currNewsSourceDisplayed.clear();
         ArrayList<String> lst = updateCurrSourceDisplayed(item);
-        currNewsSourceDisplayed.addAll(lst)
+        currNewsSourceDisplayed.addAll(lst);
 
         ((ArrayAdapter) mDrawerList.getAdapter()).notifyDataSetChanged();
         setTitle("News Aggregator (" + lst.size() + ")");

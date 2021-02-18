@@ -19,7 +19,7 @@ public class SourceLoader implements Runnable {
 
     private static final String TAG = "SourceLoader";
     private final MainActivity mainActivity;
-    private static final String dataURL = "https://newsapi.org/v2/sources?apiKey=65d5db554f32406b97783439ae2d53cc";
+    private static final String dataURL = "https://newsapi.org/v2/sources?apiKey=2e237bfc14ec4dabb390e9120b0c836a";
 
     public SourceLoader(MainActivity ma) {
         mainActivity = ma;
