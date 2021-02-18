@@ -2,7 +2,9 @@ package com.example.newsaggregator;
 
 import android.graphics.drawable.Drawable;
 
-public class Article {
+import java.io.Serializable;
+
+public class Article implements Serializable {
     private String id;
     private String name;
     private String author;
@@ -97,5 +99,9 @@ public class Article {
 
     public void setContent(String content) {
         this.content = content;
+    }
+
+    public Drawable getDrawable() {
+        return drawable;
     }
 }

@@ -250,23 +250,22 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void setArticles(ArrayList<Article> aList) {
+
+        setTitle(currentSource);
+
+        for (int i = 0; i < pageAdapter.getCount(); i++)
+            pageAdapter.notifyChangeInPosition(i);
+        fragments.clear();
+
+        for (int i = 0; i < aList.size(); i++) {
+            fragments.add(
+                    ArticleFragment.newInstance(aList.get(i), i+1, aList.size()));
+        }
+
+        pageAdapter.notifyDataSetChanged();
+        pager.setCurrentItem(0);
+
     }
-//    public void setCountries(ArrayList<Country> countryList) {
-//
-//        setTitle(currentSubRegion);
-//
-//        for (int i = 0; i < pageAdapter.getCount(); i++)
-//            pageAdapter.notifyChangeInPosition(i);
-//        fragments.clear();
-//
-//        for (int i = 0; i < countryList.size(); i++) {
-//            fragments.add(
-//                    CountryFragment.newInstance(countryList.get(i), i+1, countryList.size()));
-//        }
-//
-//        pageAdapter.notifyDataSetChanged();
-//        pager.setCurrentItem(0);
-//    }
 
     // You need the 2 below to make the drawer-toggle work properly:
 
