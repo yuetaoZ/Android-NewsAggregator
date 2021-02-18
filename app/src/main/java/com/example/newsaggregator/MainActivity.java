@@ -240,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
 
     private void selectItem(int position) {
         pager.setBackground(null);
-        currentSource = currNewsSourceDisplayed.get(position);
+        currentSource = currNewsSourceDisplayed.get(position); // need to be id
         new Thread(new CurrSourceLoader(this, currentSource)).start();
         mDrawerLayout.closeDrawer(mDrawerList);
     }
@@ -324,12 +324,12 @@ public class MainActivity extends AppCompatActivity {
             String topic = s.getCategory();
             String country = Code2Country.get(s.getCountry());
             String language = Code2Language.get(s.getLanguage());
-            String name = s.getName();
+            String id = s.getId();
 
             if (topicFilter.equals("all") || topicFilter.equals(topic)) {
                 if (countryFilter.equals("all") || countryFilter.equals(country)) {
                     if (languageFilter.equals("all") || languageFilter.equals(language)) {
-                        lst.add(name);
+                        lst.add(id);
                     }
                 }
             }
